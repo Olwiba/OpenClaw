@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -e
 
+# Cleanup old Docker images after successful deploy
+echo "🧹 Cleaning up old Docker images..."
+docker image prune -f --filter "until=1h" 2>/dev/null || true
+
 OPENCLAW_STATE="/root/.openclaw"
 CONFIG_FILE="$OPENCLAW_STATE/openclaw.json"
 WORKSPACE_DIR="/root/openclaw-workspace"
