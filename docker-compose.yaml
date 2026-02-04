@@ -95,6 +95,10 @@ services:
 
     command: ["bash", "/app/scripts/bootstrap.sh"]
 
+    deploy:
+      update_config:
+        order: stop-first
+
   docker-proxy:
     image: tecnativa/docker-socket-proxy:latest
     restart: unless-stopped
