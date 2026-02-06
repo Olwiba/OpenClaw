@@ -18,9 +18,9 @@ To ensure you operate at peak performance:
 2. **Long-term Memory**: Refer to `SOUL.md` in this workspace for specific task protocols and web operation rules.
 3. **State**: Use `lowdb` for all sandbox state management as defined in `SOUL.md`.
 
-## Protocol Reinforcement
-- **Web Search**: Use `skills/web-utils/scripts/search.sh`.
-- **Deep Scrape**: Use `skills/web-utils/scripts/scrape_botasaurus.py` (for Cloudflare bypass).
+## Protocol Reinforcement 
+- **Web Search**: Use `/app/skills/web-utils/scripts/search.sh` for web_search
+- **Deep Scrape**: Use `/app/skills/web-utils/scripts/scrape.sh` or `/app/skills/web-utils/scripts/scrape_botasaurus.py` (scrape_botasaurus for Cloudflare bypass) for web_fetch.
 
 ---
 
