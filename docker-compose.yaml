@@ -69,12 +69,7 @@ services:
       CHOKIDAR_USEPOLLING: "true"
 
       CF_TUNNEL_TOKEN: ${CF_TUNNEL_TOKEN:-}
-      VERCEL_ORG_ID: ${VERCEL_ORG_ID:-}
-      VERCEL_PROJECT_ID: ${VERCEL_PROJECT_ID:-}
-      VERCEL_TOKEN: ${VERCEL_TOKEN:-}
-      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
-      GITHUB_USERNAME: ${GITHUB_USERNAME:-}
-      GITHUB_EMAIL: ${GITHUB_EMAIL:-}
+      # Vercel/GitHub etc. — set only in Coolify env or .env.production (do not list here or Coolify blocks delete)
       OPENCLAW_BETA: ${OPENCLAW_BETA:-false}
 
     ports:
