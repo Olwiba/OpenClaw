@@ -16,18 +16,15 @@ services:
       nofile:
         soft: 65535
         hard: 65535
-    env_file:
-      - .env.production
-      - .env
+    # No env_file: .env.production is gitignored so not in Coolify clone. Set all vars in Coolify Environment tab. For local dev, use: docker compose --env-file .env.production up
     environment:
       DOCKER_HOST: tcp://docker-proxy:2375
       OPENCLAW_ENABLE_WEBHOOK_PROXY: "1"
-      PORT: ${PORT:-18789}
-      NODE_ENV: ${NODE_ENV:-production}
+      PORT: 18789
+      NODE_ENV: production
       NODE_OPTIONS: '--max-old-space-size=4096'
       HOME: /data
       TERM: xterm-256color
-      # Persistence: Command History
       HISTFILE: /data/.bash_history
       HISTSIZE: 50000
       HISTSAVE: 50000
@@ -37,39 +34,31 @@ services:
       XDG_CACHE_HOME: /data/.cache
       NPM_CONFIG_CACHE: /data/.npm
       BUN_INSTALL: /data/.bun
-      # Map OpenClaw vars
       OPENCLAW_GATEWAY_BIND: lan
-      OPENCLAW_GATEWAY_PORT: ${OPENCLAW_GATEWAY_PORT:-18789}
-      # Tell the binary where to look for state/config
+      OPENCLAW_GATEWAY_PORT: 18789
       OPENCLAW_STATE_DIR: /data/.openclaw
       OPENCLAW_WORKSPACE: /data/openclaw-workspace
-
-      # API Keys — set in .env.production or Coolify env
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      MINIMAX_API_KEY: ${MINIMAX_API_KEY:-}
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
-      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
-      KIMI_API_KEY: ${KIMI_API_KEY:-}
-      OPENCODE_API_KEY: ${OPENCODE_API_KEY:-}
-      MOONSHOT_API_KEY: ${MOONSHOT_API_KEY:-}
-      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
-      SANDBOX_CONTAINER: ${SANDBOX_CONTAINER:-false}
-
-      GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY:-}
-      NANOBANANA_API_KEY: ${NANOBANANA_API_KEY:-}
-      ELEVENLABS_API_KEY: ${ELEVENLABS_API_KEY:-}
-
-      SERVICE_URL_OPENCLAW_18789: ${SERVICE_URL_OPENCLAW_18789:-}
-      SERVICE_URL_OPENCLAWWEBHOOK_8788: ${SERVICE_URL_OPENCLAWWEBHOOK_8788:-}
-      BASE_URL: ${BASE_URL:-https://${SERVICE_FQDN_OPENCLAW}}
-      PUBLIC_URL: ${PUBLIC_URL:-https://${SERVICE_FQDN_OPENCLAW}}
       OPENCLAW_AUTO_BOOTSTRAP: "1"
       OPENCLAW_PRINT_ACCESS: "1"
       GATEWAY_TRUSTED_PROXIES: '*'
       CHOKIDAR_USEPOLLING: "true"
-
+      # Empty defaults so first deploy succeeds; set real values in Coolify Environment tab
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      KIMI_API_KEY: ${KIMI_API_KEY:-}
+      OPENCODE_API_KEY: ${OPENCODE_API_KEY:-}
+      MINIMAX_API_KEY: ${MINIMAX_API_KEY:-}
+      MOONSHOT_API_KEY: ${MOONSHOT_API_KEY:-}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY:-}
+      NANOBANANA_API_KEY: ${NANOBANANA_API_KEY:-}
+      ELEVENLABS_API_KEY: ${ELEVENLABS_API_KEY:-}
       CF_TUNNEL_TOKEN: ${CF_TUNNEL_TOKEN:-}
-      # Vercel/GitHub etc. — set only in Coolify env or .env.production (do not list here or Coolify blocks delete)
+      SERVICE_FQDN_OPENCLAW: ${SERVICE_FQDN_OPENCLAW:-}
+      BASE_URL: ${BASE_URL:-}
+      PUBLIC_URL: ${PUBLIC_URL:-}
+      SANDBOX_CONTAINER: ${SANDBOX_CONTAINER:-false}
       OPENCLAW_BETA: ${OPENCLAW_BETA:-false}
 
     ports:
