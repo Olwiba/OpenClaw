@@ -17,66 +17,57 @@ services:
         soft: 65535
         hard: 65535
     env_file:
+      - .env.production
       - .env
     environment:
       DOCKER_HOST: tcp://docker-proxy:2375
       OPENCLAW_ENABLE_WEBHOOK_PROXY: "1"
-      PORT: 18789
-      NODE_ENV: production
+      PORT: ${PORT:-18789}
+      NODE_ENV: ${NODE_ENV:-production}
       NODE_OPTIONS: '--max-old-space-size=4096'
       HOME: /root
       TERM: xterm-256color
-      # Persistence: Command History
       HISTFILE: /root/.openclaw/.bash_history
       HISTSIZE: 50000
       HISTSAVE: 50000
       HISTCONTROL: ignoreboth
 
-      
-      # Map OpenClaw vars
       OPENCLAW_GATEWAY_BIND: lan
       OPENCLAW_GATEWAY_PORT: ${OPENCLAW_GATEWAY_PORT:-18789}
-      # Tell the binary where to look for state/config
       OPENCLAW_STATE_DIR: /root/.openclaw
       OPENCLAW_WORKSPACE: /root/openclaw-workspace
 
-      # API Keys injected from .env or Coolify
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      MINIMAX_API_KEY: ${MINIMAX_API_KEY}
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
-      GEMINI_API_KEY: ${GEMINI_API_KEY}
-      KIMI_API_KEY: ${KIMI_API_KEY}
-      OPENCODE_API_KEY: ${OPENCODE_API_KEY}
-      MOONSHOT_API_KEY: ${KIMI_API_KEY}
-      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      # API Keys — set in .env.production or Coolify env
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      MINIMAX_API_KEY: ${MINIMAX_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      KIMI_API_KEY: ${KIMI_API_KEY:-}
+      OPENCODE_API_KEY: ${OPENCODE_API_KEY:-}
+      MOONSHOT_API_KEY: ${MOONSHOT_API_KEY:-}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
       SANDBOX_CONTAINER: ${SANDBOX_CONTAINER:-false}
-      
-      # Optional integrations
-      GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY}
-      NANOBANANA_API_KEY: ${NANOBANANA_API_KEY}
-      ELEVENLABS_API_KEY: ${ELEVENLABS_API_KEY}
 
-      SERVICE_URL_OPENCLAW_18789: null
-      SERVICE_URL_OPENCLAWWEBHOOK_8788: null
-      BASE_URL: 'https://${SERVICE_FQDN_OPENCLAW}'
-      PUBLIC_URL: 'https://${SERVICE_FQDN_OPENCLAW}'
-      # Bootstrap controls
+      GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY:-}
+      NANOBANANA_API_KEY: ${NANOBANANA_API_KEY:-}
+      ELEVENLABS_API_KEY: ${ELEVENLABS_API_KEY:-}
+
+      SERVICE_URL_OPENCLAW_18789: ${SERVICE_URL_OPENCLAW_18789:-}
+      SERVICE_URL_OPENCLAWWEBHOOK_8788: ${SERVICE_URL_OPENCLAWWEBHOOK_8788:-}
+      BASE_URL: ${BASE_URL:-https://${SERVICE_FQDN_OPENCLAW}}
+      PUBLIC_URL: ${PUBLIC_URL:-https://${SERVICE_FQDN_OPENCLAW}}
       OPENCLAW_AUTO_BOOTSTRAP: "1"
       OPENCLAW_PRINT_ACCESS: "1"
       GATEWAY_TRUSTED_PROXIES: '*'
-      # Fix for EMFILE/Inotify issues in Docker
       CHOKIDAR_USEPOLLING: "true"
-      # Public URL Access
 
-      CF_TUNNEL_TOKEN: ${CF_TUNNEL_TOKEN}
-      # Deployment & Git
-      VERCEL_ORG_ID: ${VERCEL_ORG_ID}
-      VERCEL_PROJECT_ID: ${VERCEL_PROJECT_ID}
-      VERCEL_TOKEN: ${VERCEL_TOKEN}
-      GITHUB_TOKEN: ${GITHUB_TOKEN}
-      GITHUB_USERNAME: ${GITHUB_USERNAME}
-      GITHUB_EMAIL: ${GITHUB_EMAIL}
-      # Optional
+      CF_TUNNEL_TOKEN: ${CF_TUNNEL_TOKEN:-}
+      VERCEL_ORG_ID: ${VERCEL_ORG_ID:-}
+      VERCEL_PROJECT_ID: ${VERCEL_PROJECT_ID:-}
+      VERCEL_TOKEN: ${VERCEL_TOKEN:-}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      GITHUB_USERNAME: ${GITHUB_USERNAME:-}
+      GITHUB_EMAIL: ${GITHUB_EMAIL:-}
       OPENCLAW_BETA: ${OPENCLAW_BETA:-false}
 
     ports:
