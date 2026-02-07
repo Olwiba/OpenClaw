@@ -25,17 +25,24 @@ services:
       PORT: ${PORT:-18789}
       NODE_ENV: ${NODE_ENV:-production}
       NODE_OPTIONS: '--max-old-space-size=4096'
-      HOME: /root
+      HOME: /data
       TERM: xterm-256color
-      HISTFILE: /root/.openclaw/.bash_history
+      # Persistence: Command History
+      HISTFILE: /data/.bash_history
       HISTSIZE: 50000
       HISTSAVE: 50000
       HISTCONTROL: ignoreboth
-
+      XDG_CONFIG_HOME: /data/.config
+      XDG_DATA_HOME: /data/.local/share
+      XDG_CACHE_HOME: /data/.cache
+      NPM_CONFIG_CACHE: /data/.npm
+      BUN_INSTALL: /data/.bun
+      # Map OpenClaw vars
       OPENCLAW_GATEWAY_BIND: lan
       OPENCLAW_GATEWAY_PORT: ${OPENCLAW_GATEWAY_PORT:-18789}
-      OPENCLAW_STATE_DIR: /root/.openclaw
-      OPENCLAW_WORKSPACE: /root/openclaw-workspace
+      # Tell the binary where to look for state/config
+      OPENCLAW_STATE_DIR: /data/.openclaw
+      OPENCLAW_WORKSPACE: /data/openclaw-workspace
 
       # API Keys — set in .env.production or Coolify env
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
@@ -74,9 +81,9 @@ services:
       - "127.0.0.1:18789:18789"
 
     volumes:
+      - openclaw-data:/data
       - openclaw-config:/root/.openclaw
       - openclaw-workspace:/root/openclaw-workspace
-
 
       # Secure: Socket mount removed in favor of proxy
       # - /var/run/docker.sock:/var/run/docker.sock
@@ -85,6 +92,12 @@ services:
       - docker-proxy
 
     command: ["bash", "/app/scripts/bootstrap.sh"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:18789/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
 
     deploy:
       update_config:
@@ -96,7 +109,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
-      LOG_LEVEL: info
       # Security: Only enable necessary Docker APIs
       POST: 1       # Create containers
       CONTAINERS: 1 # List/manage containers
@@ -107,59 +119,16 @@ services:
       EXEC: 1       # Run commands (exec)
       EVENTS: 1     # Listen for events (if needed)
 
-#  qdrant:
-#    image: qdrant/qdrant:latest
-#    restart: unless-stopped
-#    volumes:
-#      - qdrant-data:/qdrant/storage
-
-#  linkding:
-#    image: sissbruecker/linkding:latest
-#    restart: unless-stopped
-#    volumes:
-#      - linkding-data:/etc/linkding/data
-#    environment:
-#      - LD_DISABLE_BACKGROUND_TASKS=False
-#      - LD_DISABLE_URL_VALIDATION=False
-
-#  miniflux:
-#    image: miniflux/miniflux:latest
-#    restart: unless-stopped
-#    depends_on:
-#      - miniflux-db
-#    environment:
-#      - DATABASE_URL=postgres://miniflux:secret@miniflux-db/miniflux?sslmode=disable
-#      - RUN_MIGRATIONS=1
-#      - CREATE_ADMIN=1
-#      - ADMIN_USERNAME=admin
-#      - ADMIN_PASSWORD=admin123
-#      - BASE_URL=http://localhost:8080
-
-#  miniflux-db:
-#    image: postgres:15-alpine
-#    restart: unless-stopped
-#    environment:
-#      - POSTGRES_USER=miniflux
-#      - POSTGRES_PASSWORD=secret
-#      - POSTGRES_DB=miniflux
-#    volumes:
-#      - miniflux-db:/var/lib/postgresql/data
-
-  
-
   searxng:
     build:
       context: .
       dockerfile: searxng/Dockerfile
     restart: unless-stopped
-
     volumes:
       - searxng-data:/var/lib/searxng
-
     environment:
       SEARXNG_BASE_URL: http://searxng:8080
       SEARXNG_SERVER_SECRET_KEY: ${SERVICE_BASE64_SEARXNG}
-
     cap_drop:
       - ALL
     cap_add:
@@ -167,13 +136,9 @@ services:
       - SETGID
       - SETUID
 
-
 volumes:
+  openclaw-data:
   openclaw-config:
   openclaw-workspace:
   searxng-data:
-
   registry-data:
-#  qdrant-data:
-#  linkding-data:
-#  miniflux-db:
