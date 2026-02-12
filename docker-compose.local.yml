@@ -3,18 +3,24 @@ services:
     image: openclaw:local
     ports:
       - "${PORT:-8080}:${PORT:-8080}"
+    env_file: .env
     environment:
       # Provider (at least one required)
-      - OPENCODE_API_KEY=${OPENCODE_API_KEY}
-      - OPENCLAW_PRIMARY_MODEL=opencode/kimi-k2.5
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENCODE_API_KEY=${OPENCODE_API_KEY:-}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - OPENCLAW_PRIMARY_MODEL=${OPENCLAW_PRIMARY_MODEL:-}
       # Auth
-      - AUTH_USERNAME=whatever
-      - AUTH_PASSWORD=secret
-      - OPENCLAW_GATEWAY_TOKEN=local-dev-token
-      # Browser sidecar
-      - BROWSER_CDP_URL=http://browser:9223
-      - BROWSER_DEFAULT_PROFILE=openclaw
-      - BROWSER_EVALUATE_ENABLED=true
+      - AUTH_USERNAME=${AUTH_USERNAME:-admin}
+      - AUTH_PASSWORD=${AUTH_PASSWORD}
+      - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN}
+      # Gateway
+      - OPENCLAW_GATEWAY_PORT=${OPENCLAW_GATEWAY_PORT:-18789}
+      # Browser sidecar (internal networking)
+      - BROWSER_CDP_URL=http://browser:9222
+      - BROWSER_DEFAULT_PROFILE=${BROWSER_DEFAULT_PROFILE:-openclaw}
+      - BROWSER_EVALUATE_ENABLED=${BROWSER_EVALUATE_ENABLED:-true}
     volumes:
       - openclaw-data:/data
     depends_on:
@@ -26,7 +32,7 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=Etc/UTC
+      - TZ=${TZ:-Etc/UTC}
       - CHROME_CLI=--remote-debugging-port=9222
     volumes:
       - browser-data:/config

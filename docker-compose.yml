@@ -3,26 +3,41 @@ services:
     image: coollabsio/openclaw:latest
     ports:
       - "${PORT:-8080}:${PORT:-8080}"
+    env_file: .env
     environment:
       # Provider (at least one required)
-      #- ANTHROPIC_API_KEY=sk-ant-...
-      - OPENCODE_API_KEY=${OPENCODE_API_KEY}
-      - OPENCLAW_PRIMARY_MODEL=opencode/kimi-k2.5
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENCODE_API_KEY=${OPENCODE_API_KEY:-}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - OPENCLAW_PRIMARY_MODEL=${OPENCLAW_PRIMARY_MODEL:-}
       # Auth
-      - AUTH_USERNAME=whatever
-      - AUTH_PASSWORD=changeme
-      - OPENCLAW_GATEWAY_TOKEN=my-secret-token
-      # Browser sidecar
-      - BROWSER_CDP_URL=http://browser:9223
-      - BROWSER_DEFAULT_PROFILE=openclaw
-      - BROWSER_EVALUATE_ENABLED=true
+      - AUTH_USERNAME=${AUTH_USERNAME:-admin}
+      - AUTH_PASSWORD=${AUTH_PASSWORD}
+      - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN}
+      # Gateway
+      - OPENCLAW_GATEWAY_PORT=${OPENCLAW_GATEWAY_PORT:-18789}
+      # Browser sidecar (internal networking, not user-configurable)
+      - BROWSER_CDP_URL=http://browser:9222
+      - BROWSER_DEFAULT_PROFILE=${BROWSER_DEFAULT_PROFILE:-openclaw}
+      - BROWSER_EVALUATE_ENABLED=${BROWSER_EVALUATE_ENABLED:-true}
+      # Channels (optional)
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
+      - TELEGRAM_DM_POLICY=${TELEGRAM_DM_POLICY:-pairing}
+      - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN:-}
+      - DISCORD_DM_POLICY=${DISCORD_DM_POLICY:-pairing}
       # Hooks (optional)
-      # - HOOKS_ENABLED=true
-      # - HOOKS_TOKEN=my-hook-secret
+      - HOOKS_ENABLED=${HOOKS_ENABLED:-}
+      - HOOKS_TOKEN=${HOOKS_TOKEN:-}
+      # Integrations
+      - LINEAR_API_KEY=${LINEAR_API_KEY:-}
+      - GOG_PASSPHRASE=${GOG_PASSPHRASE:-}
+      - GOG_KEYRING_PASSWORD=${GOG_KEYRING_PASSWORD:-}
+      - GOG_ACCOUNT=${GOG_ACCOUNT:-}
     volumes:
       - openclaw-data:/data
-      # Optional: custom JSON config for complex settings (groups, plugins, etc.)
-      # - ./my-openclaw.json:/app/config/openclaw.json
+      - ./my-openclaw.json:/app/config/openclaw.json
     depends_on:
       - browser
     restart: unless-stopped
@@ -33,7 +48,7 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=Etc/UTC
+      - TZ=${TZ:-Etc/UTC}
       - CHROME_CLI=--remote-debugging-port=9222
     volumes:
       - browser-data:/config
