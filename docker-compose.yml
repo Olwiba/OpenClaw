@@ -1,5 +1,6 @@
 services:
   openclaw:
+    build: .
     image: coollabsio/openclaw:latest
     env_file: .env
     environment:
@@ -35,7 +36,6 @@ services:
       - GOG_ACCOUNT=${GOG_ACCOUNT:-}
     volumes:
       - openclaw-data:/data
-      - ./my-openclaw.json:/app/config/openclaw.json
     depends_on:
       - browser
     restart: unless-stopped
