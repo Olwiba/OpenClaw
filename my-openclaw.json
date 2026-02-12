@@ -1,4 +1,9 @@
 {
+  "gateway": {
+    "controlUi": {
+      "allowedOrigins": ["https://openclaw.tail58d64c.ts.net"]
+    }
+  },
   "compaction": {
     "memoryFlush": {
       "enabled": true

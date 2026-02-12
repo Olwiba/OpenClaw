@@ -1,8 +1,6 @@
 services:
   openclaw:
     image: coollabsio/openclaw:latest
-    ports:
-      - "${PORT:-8080}:${PORT:-8080}"
     env_file: .env
     environment:
       # Provider (at least one required)
