@@ -31,8 +31,6 @@ services:
       - HOOKS_TOKEN=${HOOKS_TOKEN:-}
       # Integrations
       - LINEAR_API_KEY=${LINEAR_API_KEY:-}
-      - GOG_PASSPHRASE=${GOG_PASSPHRASE:-}
-      - GOG_KEYRING_PASSWORD=${GOG_KEYRING_PASSWORD:-}
       - GOG_ACCOUNT=${GOG_ACCOUNT:-}
     volumes:
       - openclaw-data:/data
