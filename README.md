@@ -39,7 +39,7 @@ docker compose up -d
 ┌─────────────────────────────────────────────┐
 │  Docker container (coollabsio/openclaw)     │
 │                                             │
-│  Baked in: Linuxbrew, build-essential       │
+│  Baked in: Linuxbrew, Go, uv, build-essential│
 │  Persistent volume: /data                   │
 │    ├── .openclaw/      (state & config)     │
 │    └── workspace/      (user projects)      │
@@ -320,9 +320,14 @@ If a channel env var is removed, that channel is cleaned from config on next sta
 
 ### Linuxbrew (baked into image)
 
-Linuxbrew is pre-installed in the base image at `/home/linuxbrew/.linuxbrew` along with `build-essential`, `git`, and other common build dependencies. Skills that require `brew` work out of the box.
+The base image includes common skill dependencies baked in:
 
-Note: packages installed via `brew install` at runtime are part of the container filesystem and do **not** persist across container rebuilds. To permanently add brew packages, customize `Dockerfile.base` or use `OPENCLAW_DOCKER_APT_PACKAGES` for apt-available equivalents.
+- **Linuxbrew** — `/home/linuxbrew/.linuxbrew` — skills that need `brew` work out of the box
+- **Go** — `/usr/local/go` — for Go-based skills and tools
+- **uv** — fast Python package manager for Python-based skills
+- **build-essential**, **git**, **curl** — common build dependencies
+
+Note: packages installed at runtime (e.g. via `brew install`) are part of the container filesystem and do **not** persist across container rebuilds. To permanently add packages, customize `Dockerfile.base` or use `OPENCLAW_DOCKER_APT_PACKAGES` for apt-available equivalents.
 
 ### Custom init script (optional)
 
