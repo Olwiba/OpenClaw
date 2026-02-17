@@ -26,6 +26,9 @@ services:
       - TELEGRAM_DM_POLICY=${TELEGRAM_DM_POLICY:-pairing}
       - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN:-}
       - DISCORD_DM_POLICY=${DISCORD_DM_POLICY:-pairing}
+      # Vault sync (optional)
+      - VAULT_PATH=${VAULT_PATH:-/data/workspace/seekers-vault}
+      - VAULT_SYNC_ENABLED=${VAULT_SYNC_ENABLED:-}
       # Hooks (optional)
       - HOOKS_ENABLED=${HOOKS_ENABLED:-}
       - HOOKS_TOKEN=${HOOKS_TOKEN:-}

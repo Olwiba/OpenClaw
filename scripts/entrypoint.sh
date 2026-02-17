@@ -66,6 +66,12 @@ echo "[entrypoint] running configure..."
 node /app/scripts/configure.js
 chmod 600 "$STATE_DIR/openclaw.json"
 
+# ── Vault sync (optional) ─────────────────────────────────────────────────
+if [ "${VAULT_SYNC_ENABLED:-}" = "true" ] && [ -d "${VAULT_PATH:-}" ]; then
+  echo "[entrypoint] running vault sync..."
+  node /app/scripts/vault-sync.js
+fi
+
 # ── Auto-fix doctor suggestions (e.g. enable configured channels) ─────────
 echo "[entrypoint] running openclaw doctor --fix..."
 cd /opt/openclaw/app

@@ -97,6 +97,38 @@ Use `"*"` key to allow all groups, or specific group JIDs for fine-grained contr
 
 Docs: https://docs.openclaw.ai/channels/whatsapp
 
+### Vault sync env vars (2 total)
+
+Gate: `VAULT_SYNC_ENABLED=true` + `VAULT_PATH` directory exists (both required to activate).
+
+Strings: `VAULT_PATH`
+Booleans: `VAULT_SYNC_ENABLED`
+
+`scripts/vault-sync.js` runs after `configure.js` in the entrypoint. It walks the vault's `agents/` directory, parses `SOUL.md` and `CONFIG.md` frontmatter, and merges agent configs into `openclaw.json`.
+
+Merge behavior: deep-merge into the existing config (agent configs from vault add to or override what configure.js wrote). Vault defines the desired state; env vars from configure.js still take precedence for provider-level settings.
+
+#### How SOUL.md/CONFIG.md map to openclaw.json
+
+| Vault file | Field | → openclaw.json path |
+|------------|-------|---------------------|
+| SOUL.md | body (markdown) | `agents.<id>.instructions` |
+| CONFIG.md | `model.primary` | `agents.<id>.model.primary` |
+| CONFIG.md | `model.fallback` | `agents.<id>.model.fallback` |
+| CONFIG.md | `workspace` | `agents.<id>.workspace` |
+| CONFIG.md | `tools.allow` | `agents.<id>.tools.allow` |
+| CONFIG.md | `tools.deny` | `agents.<id>.tools.deny` |
+| CONFIG.md | `sandbox.mode` | `agents.<id>.sandbox.mode` |
+| CONFIG.md | `sandbox.scope` | `agents.<id>.sandbox.scope` |
+
+Only agents with `status: active` are synced. Agents in `setup`, `paused`, or `inactive` are skipped.
+
+#### Override precedence
+
+```
+Vault CONFIG.md (base) → env vars (configure.js) → runtime flags (highest)
+```
+
 ## Keeping docs in sync
 
 When changing env vars, configure.js, or project structure, also update `README.md` (architecture overview + full env var reference table).
