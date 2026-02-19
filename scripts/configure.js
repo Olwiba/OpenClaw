@@ -70,6 +70,23 @@ if (config.memorySearch) {
   delete config.memorySearch;
 }
 
+// Migrate legacy agents.<id> object entries → agents.list array.
+// Schema changed: arbitrary keys under agents are no longer valid;
+// custom agents now live in agents.list[].
+if (config.agents) {
+  const reservedAgentKeys = new Set(["defaults", "list", "main"]);
+  const legacyIds = Object.keys(config.agents).filter(k => !reservedAgentKeys.has(k));
+  if (legacyIds.length > 0) {
+    console.log(`[configure] migrating legacy agent keys to agents.list: ${legacyIds.join(", ")}`);
+    if (!Array.isArray(config.agents.list)) config.agents.list = [];
+    for (const id of legacyIds) {
+      const idx = config.agents.list.findIndex(a => a.id === id);
+      if (idx < 0) config.agents.list.push({ id, ...config.agents[id] });
+      delete config.agents[id];
+    }
+  }
+}
+
 // 3. Env vars override on top (applied below)
 
 // Helper: ensure nested path exists

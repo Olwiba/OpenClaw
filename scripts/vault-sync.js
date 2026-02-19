@@ -268,18 +268,20 @@ function runSync() {
       console.log("[vault-sync] no existing config found, starting fresh");
     }
 
-    // 4. Ensure agents section exists
+    // 4. Ensure agents.list exists (schema: agents.list[] not agents.<id>)
     if (!config.agents) config.agents = {};
+    if (!Array.isArray(config.agents.list)) config.agents.list = [];
 
-    // 5. Generate and merge agent configs
+    // 5. Upsert agent configs into agents.list
     for (const agent of activeAgents) {
       const agentConfig = generateAgentConfig(agent);
-      console.log(`[vault-sync] merging config for ${agent.id}`);
+      console.log(`[vault-sync] upserting agent ${agent.id} into agents.list`);
 
-      if (!config.agents[agent.id]) {
-        config.agents[agent.id] = agentConfig;
+      const idx = config.agents.list.findIndex(a => a.id === agent.id);
+      if (idx >= 0) {
+        deepMerge(config.agents.list[idx], agentConfig);
       } else {
-        deepMerge(config.agents[agent.id], agentConfig);
+        config.agents.list.push({ id: agent.id, ...agentConfig });
       }
     }
 

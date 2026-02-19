@@ -5,17 +5,11 @@
       "allowedOrigins": ["https://openclaw.tail58d64c.ts.net"]
     }
   },
-  "compaction": {
-    "memoryFlush": {
-      "enabled": true
-    }
-  },
   "agents": {
     "defaults": {
       "memorySearch": {
         "experimental": {
-          "sessionMemory": true,
-          "sources": ["memory", "sessions"]
+          "sessionMemory": true
         }
       }
     }
