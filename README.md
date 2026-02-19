@@ -184,6 +184,34 @@ If a provider env var is removed, that provider section is cleaned from `opencla
 
 When hooks are enabled and `AUTH_PASSWORD` is set, the hooks path automatically bypasses HTTP basic auth. Openclaw validates requests using the hook token instead. Docs: https://docs.openclaw.ai/automation/webhook
 
+### Vault sync (optional)
+
+| Variable | Default | Description |
+|---|---|---|
+| `VAULT_SYNC_ENABLED` | | Set to `true` to enable vault sync. Requires `VAULT_PATH` to exist. |
+| `VAULT_PATH` | `/data/workspace/seekers-vault` | Path to the Obsidian vault inside the container. Mount the vault as a Docker volume at this path. |
+
+When enabled, `vault-sync.js` runs at startup and then watches for changes. Agent configs are read from `agents/<name>/SOUL.md` + `CONFIG.md` and merged into `openclaw.json`. Only agents with `status: active` are synced.
+
+### Vault webhook sidecar (optional)
+
+| Variable | Description |
+|---|---|
+| `GITHUB_WEBHOOK_SECRET` | HMAC secret for validating GitHub push webhooks. Set the same value in your GitHub repo → Settings → Webhooks. Generate with `openssl rand -hex 32`. |
+
+The `vault-webhook` service in `docker-compose.yml` receives push events from GitHub, validates the HMAC-SHA256 signature, and runs `git pull` on the vault. The vault-sync watcher inside the openclaw container detects the file changes and re-merges agent configs automatically — no container restart needed.
+
+**Flow:** Obsidian edit → git push → GitHub webhook → `vault-webhook:9000` → git pull → fs.watch → vault-sync re-run → `openclaw.json` updated.
+
+**Setup:**
+1. Set `GITHUB_WEBHOOK_SECRET` in `.env` (generate with `openssl rand -hex 32`)
+2. Open port `9000` on the VPS firewall
+3. In GitHub repo → Settings → Webhooks → Add webhook:
+   - Payload URL: `http://<vps-ip>:9000/hooks/vault-sync`
+   - Content type: `application/json`
+   - Secret: same value as `GITHUB_WEBHOOK_SECRET`
+   - Events: `Just the push event`
+
 ### Browser tool (remote CDP sidecar, optional)
 
 | Variable | Default | Description |

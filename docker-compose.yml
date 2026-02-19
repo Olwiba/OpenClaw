@@ -44,6 +44,21 @@ services:
       - browser
     restart: unless-stopped
 
+  vault-webhook:
+    build:
+      context: .
+      dockerfile: Dockerfile.webhook
+    command: ["-hooks", "/config/hooks.json", "-port", "9000", "-verbose", "-template"]
+    environment:
+      - GITHUB_WEBHOOK_SECRET=${GITHUB_WEBHOOK_SECRET}
+    volumes:
+      - /opt/seekers-vault:/vault
+      - /root/.ssh:/root/.ssh:ro
+      - ./scripts/vault-webhook:/config:ro
+    ports:
+      - "9000:9000"
+    restart: unless-stopped
+
   browser:
     image: coollabsio/openclaw-browser:latest
     # No port exposure needed — proxied via openclaw at /browser/

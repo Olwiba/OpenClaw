@@ -240,71 +240,133 @@ function generateAgentConfig(agent) {
   return config;
 }
 
-// ── Main ─────────────────────────────────────────────────────────────────────
+// ── Main sync function ────────────────────────────────────────────────────────
 
-// 1. Discover agents
-const agents = [];
-discoverAgents(AGENTS_DIR, agents);
-console.log(`[vault-sync] discovered ${agents.length} agent(s)`);
+function runSync() {
+  // 1. Discover agents
+  const agents = [];
+  discoverAgents(AGENTS_DIR, agents);
+  console.log(`[vault-sync] discovered ${agents.length} agent(s)`);
 
-for (const agent of agents) {
-  console.log(`[vault-sync]   ${agent.id} (tier=${agent.tier}, status=${agent.status})`);
-}
-
-// 2. Filter to active agents only
-const activeAgents = agents.filter(a => a.status === "active");
-console.log(`[vault-sync] ${activeAgents.length} active agent(s) to sync`);
-
-if (activeAgents.length === 0) {
-  console.log("[vault-sync] no active agents found, skipping config merge");
-} else {
-  // 3. Load existing openclaw.json (written by configure.js)
-  let config = {};
-  try {
-    config = JSON.parse(fs.readFileSync(CONFIG_FILE, "utf8"));
-    console.log("[vault-sync] loaded existing config from", CONFIG_FILE);
-  } catch {
-    console.log("[vault-sync] no existing config found, starting fresh");
+  for (const agent of agents) {
+    console.log(`[vault-sync]   ${agent.id} (tier=${agent.tier}, status=${agent.status})`);
   }
 
-  // 4. Ensure agents section exists
-  if (!config.agents) config.agents = {};
+  // 2. Filter to active agents only
+  const activeAgents = agents.filter(a => a.status === "active");
+  console.log(`[vault-sync] ${activeAgents.length} active agent(s) to sync`);
 
-  // 5. Generate and merge agent configs
-  for (const agent of activeAgents) {
-    const agentConfig = generateAgentConfig(agent);
-    console.log(`[vault-sync] merging config for ${agent.id}`);
+  if (activeAgents.length === 0) {
+    console.log("[vault-sync] no active agents found, skipping config merge");
+  } else {
+    // 3. Load existing openclaw.json (written by configure.js)
+    let config = {};
+    try {
+      config = JSON.parse(fs.readFileSync(CONFIG_FILE, "utf8"));
+      console.log("[vault-sync] loaded existing config from", CONFIG_FILE);
+    } catch {
+      console.log("[vault-sync] no existing config found, starting fresh");
+    }
 
-    if (!config.agents[agent.id]) {
-      config.agents[agent.id] = agentConfig;
-    } else {
-      deepMerge(config.agents[agent.id], agentConfig);
+    // 4. Ensure agents section exists
+    if (!config.agents) config.agents = {};
+
+    // 5. Generate and merge agent configs
+    for (const agent of activeAgents) {
+      const agentConfig = generateAgentConfig(agent);
+      console.log(`[vault-sync] merging config for ${agent.id}`);
+
+      if (!config.agents[agent.id]) {
+        config.agents[agent.id] = agentConfig;
+      } else {
+        deepMerge(config.agents[agent.id], agentConfig);
+      }
+    }
+
+    // 6. Write updated config
+    fs.mkdirSync(path.dirname(CONFIG_FILE), { recursive: true });
+    fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2));
+    console.log("[vault-sync] config written to", CONFIG_FILE);
+  }
+
+  // 7. Write sync manifest to vault
+  const manifest = {
+    syncedAt: new Date().toISOString(),
+    vaultPath: VAULT_PATH,
+    agents: agents.map(a => ({
+      id: a.id,
+      tier: a.tier,
+      status: a.status,
+      hasSoul: !!a.soul,
+      hasConfig: !!a.config,
+      hasHeartbeat: !!a.heartbeat,
+    })),
+    activeCount: activeAgents.length,
+    totalCount: agents.length,
+  };
+
+  const manifestPath = path.join(VAULT_PATH, ".vault-sync-manifest.json");
+  fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+  console.log("[vault-sync] manifest written to", manifestPath);
+  console.log("[vault-sync] done");
+}
+
+// ── Watch mode ────────────────────────────────────────────────────────────────
+// Uses fs.watch on agents/ and each agent subdir (Linux inotify, no polling).
+// Debounces 1s to let git finish writing all files before re-syncing.
+
+function startWatcher() {
+  const watchedDirs = new Set();
+  let debounceTimer = null;
+
+  function scheduleSync() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+      console.log("[vault-sync] change detected, re-syncing...");
+      try {
+        runSync();
+      } catch (err) {
+        console.error("[vault-sync] re-sync error:", err.message);
+      }
+      // Pick up any newly created agent dirs
+      addWatchersForAgentDirs();
+    }, 1000);
+  }
+
+  function watchDir(dir) {
+    if (watchedDirs.has(dir)) return;
+    try {
+      fs.watch(dir, () => scheduleSync());
+      watchedDirs.add(dir);
+    } catch {
+      // dir may not exist yet
     }
   }
 
-  // 6. Write updated config
-  fs.mkdirSync(path.dirname(CONFIG_FILE), { recursive: true });
-  fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2));
-  console.log("[vault-sync] config written to", CONFIG_FILE);
+  function addWatchersForAgentDirs() {
+    watchDir(AGENTS_DIR);
+    if (!fs.existsSync(AGENTS_DIR)) return;
+    const entries = fs.readdirSync(AGENTS_DIR, { withFileTypes: true });
+    for (const entry of entries) {
+      if (
+        entry.isDirectory() &&
+        !entry.name.startsWith(".") &&
+        entry.name !== "reports" &&
+        entry.name !== "status"
+      ) {
+        watchDir(path.join(AGENTS_DIR, entry.name));
+      }
+    }
+  }
+
+  addWatchersForAgentDirs();
+  console.log("[vault-sync] watching vault for changes...");
 }
 
-// 7. Write sync manifest to vault
-const manifest = {
-  syncedAt: new Date().toISOString(),
-  vaultPath: VAULT_PATH,
-  agents: agents.map(a => ({
-    id: a.id,
-    tier: a.tier,
-    status: a.status,
-    hasSoul: !!a.soul,
-    hasConfig: !!a.config,
-    hasHeartbeat: !!a.heartbeat,
-  })),
-  activeCount: activeAgents.length,
-  totalCount: agents.length,
-};
+// ── Entry ─────────────────────────────────────────────────────────────────────
 
-const manifestPath = path.join(VAULT_PATH, ".vault-sync-manifest.json");
-fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
-console.log("[vault-sync] manifest written to", manifestPath);
-console.log("[vault-sync] done");
+runSync();
+
+if (process.argv.includes("--watch")) {
+  startWatcher();
+}

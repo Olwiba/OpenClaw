@@ -81,8 +81,8 @@ chmod 600 "$STATE_DIR/openclaw.json"
 
 # ── Vault sync (optional) ─────────────────────────────────────────────────
 if [ "${VAULT_SYNC_ENABLED:-}" = "true" ] && [ -d "${VAULT_PATH:-}" ]; then
-  echo "[entrypoint] running vault sync..."
-  node /app/scripts/vault-sync.js
+  echo "[entrypoint] starting vault sync watcher..."
+  node /app/scripts/vault-sync.js --watch &
 fi
 
 # ── Auto-fix doctor suggestions (e.g. enable configured channels) ─────────
