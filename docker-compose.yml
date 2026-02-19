@@ -54,7 +54,6 @@ services:
     volumes:
       - /opt/seekers-vault:/vault
       - /root/.ssh:/root/.ssh:ro
-      - ./scripts/vault-webhook:/config:ro
     ports:
       - "9000:9000"
     restart: unless-stopped
