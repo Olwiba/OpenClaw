@@ -58,6 +58,18 @@ try {
   console.log("[configure] no persisted config found");
 }
 
+// Migrate legacy top-level keys that openclaw has moved to new paths.
+// Runs after persisted state is merged so stale volume data gets cleaned up
+// on the very next restart rather than requiring manual intervention.
+if (config.memorySearch) {
+  console.log("[configure] migrating legacy memorySearch → agents.defaults.memorySearch");
+  ensure(config, "agents", "defaults");
+  if (!config.agents.defaults.memorySearch) {
+    config.agents.defaults.memorySearch = config.memorySearch;
+  }
+  delete config.memorySearch;
+}
+
 // 3. Env vars override on top (applied below)
 
 // Helper: ensure nested path exists
