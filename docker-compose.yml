@@ -48,7 +48,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.webhook
-    command: ["webhook", "-hooks", "/config/hooks.json", "-port", "9000", "-verbose", "-template"]
     environment:
       - GITHUB_WEBHOOK_SECRET=${GITHUB_WEBHOOK_SECRET}
     volumes:

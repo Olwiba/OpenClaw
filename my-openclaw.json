@@ -10,10 +10,14 @@
       "enabled": true
     }
   },
-  "memorySearch": {
-    "experimental": {
-      "sessionMemory": true,
-      "sources": ["memory", "sessions"]
+  "agents": {
+    "defaults": {
+      "memorySearch": {
+        "experimental": {
+          "sessionMemory": true,
+          "sources": ["memory", "sessions"]
+        }
+      }
     }
   }
 }
