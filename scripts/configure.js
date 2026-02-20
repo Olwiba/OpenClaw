@@ -97,6 +97,31 @@ if (config.agents) {
   }
 }
 
+// Clean invalid fields from agents.list entries.
+// instructions: removed from schema — now read from workspace IDENTITY.md.
+// model as object: schema expects a string (primary model ID) or nothing.
+// tools/sandbox: not valid per-list-entry overrides in current schema.
+if (Array.isArray(config.agents?.list)) {
+  for (const entry of config.agents.list) {
+    if (entry.instructions !== undefined) {
+      console.log(`[configure] removing agents.list[${entry.id}].instructions (schema removed, now in workspace IDENTITY.md)`);
+      delete entry.instructions;
+    }
+    if (entry.model !== null && typeof entry.model === "object") {
+      const primary = entry.model?.primary;
+      if (primary) {
+        console.log(`[configure] converting agents.list[${entry.id}].model object → string`);
+        entry.model = primary;
+      } else {
+        console.log(`[configure] removing invalid agents.list[${entry.id}].model`);
+        delete entry.model;
+      }
+    }
+    if (entry.tools !== undefined) delete entry.tools;
+    if (entry.sandbox !== undefined) delete entry.sandbox;
+  }
+}
+
 // 3. Env vars override on top (applied below)
 
 // Helper: ensure nested path exists
