@@ -260,6 +260,12 @@ function generateAgentConfig(agent) {
     if (agent.config.tools.deny)  config.tools.deny  = agent.config.tools.deny;
   }
 
+  // Subagents: allowAgents controls which agent IDs this agent may spawn.
+  // Maps from permissions.can_spawn in CONFIG.md.
+  if (Array.isArray(agent.config?.permissions?.can_spawn) && agent.config.permissions.can_spawn.length > 0) {
+    config.subagents = { allowAgents: agent.config.permissions.can_spawn };
+  }
+
   return config;
 }
 

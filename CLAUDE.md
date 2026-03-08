@@ -120,8 +120,9 @@ Merge behavior: deep-merge into the existing config (agent configs from vault ad
 | CONFIG.md | `tools.deny` | `agents.<id>.tools.deny` |
 | CONFIG.md | `sandbox.mode` | `agents.<id>.sandbox.mode` |
 | CONFIG.md | `sandbox.scope` | `agents.<id>.sandbox.scope` |
+| CONFIG.md | `permissions.can_spawn` | `agents.<id>.subagents.allowAgents` |
 
-Note: `sandbox` is required in `openclaw.json` for spawn eligibility — if the requester session is sandboxed, openclaw rejects spawn targets with no sandbox config.
+Note: `sandbox` is required in `openclaw.json` for spawn eligibility — if the requester session is sandboxed, openclaw rejects spawn targets with no sandbox config. `subagents.allowAgents` is required for an agent to spawn others — by default agents can only spawn themselves.
 
 Only agents with `status: active` are synced. Agents in `setup`, `paused`, or `inactive` are skipped.
 
