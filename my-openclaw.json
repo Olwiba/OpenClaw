@@ -10,8 +10,21 @@
           "sessionMemory": true
         }
       }
-    }
+    },
+    "list": [
+      { "id": "mr-chiefseeks", "default": true },
+      { "id": "mr-leadseeks-engineering" },
+      { "id": "mr-leadseeks-finance" },
+      { "id": "mr-leadseeks-scribe" },
+      { "id": "mr-leadseeks-security" }
+    ]
   },
+  "bindings": [
+    { "match": { "channel": "discord", "peer": { "kind": "channel", "id": "1487203237692964914" } }, "agentId": "mr-leadseeks-engineering" },
+    { "match": { "channel": "discord", "peer": { "kind": "channel", "id": "1487122887017238568" } }, "agentId": "mr-leadseeks-finance" },
+    { "match": { "channel": "discord", "peer": { "kind": "channel", "id": "1487203657413038140" } }, "agentId": "mr-leadseeks-scribe" },
+    { "match": { "channel": "discord", "peer": { "kind": "channel", "id": "1487203609602166814" } }, "agentId": "mr-leadseeks-security" }
+  ],
   "channels": {
     "discord": {
       "threadBindings": {
