@@ -43,7 +43,9 @@
   "tools": {
     "media": {
       "audio": {
-        "scope": "all"
+        "scope": {
+          "default": "allow"
+        }
       }
     }
   }

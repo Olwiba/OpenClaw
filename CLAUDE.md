@@ -113,8 +113,8 @@ Merge behavior: deep-merge into the existing config (agent configs from vault ad
 | Vault file | Field | → openclaw.json path |
 |------------|-------|---------------------|
 | SOUL.md | body (markdown) | `agents.<id>.instructions` |
-| CONFIG.md | `model.primary` | `agents.<id>.model` (string) |
-| CONFIG.md | `model.fallback` | `agents.<id>.modelFallback` (string) |
+| CONFIG.md | `model.primary` | `agents.list[].model` (string or `model.primary`) |
+| CONFIG.md | `model.fallback` | `agents.list[].model.fallbacks[]` (single fallback mapped to first entry) |
 | CONFIG.md | `workspace` | `agents.<id>.workspace` |
 | CONFIG.md | `tools.allow` | `agents.<id>.tools.allow` |
 | CONFIG.md | `tools.deny` | `agents.<id>.tools.deny` |

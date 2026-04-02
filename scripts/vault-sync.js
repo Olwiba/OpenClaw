@@ -233,15 +233,21 @@ function generateAgentConfig(agent) {
     config.workspace = agent.config.workspace;
   }
 
-  // Model: openclaw accepts a string (primary model ID) per agents.list entry.
-  // Syncing this overwrites any stale model string in the persisted config.
-  if (agent.config?.model?.primary) {
-    config.model = agent.config.model.primary;
-  }
-
-  // Model fallback: used when primary model is unavailable.
-  if (agent.config?.model?.fallback) {
-    config.modelFallback = agent.config.model.fallback;
+  // Model: support string form (primary only) or object form with fallbacks.
+  // Current OpenClaw schema expects fallbacks under model.fallbacks.
+  const primaryModel = agent.config?.model?.primary;
+  const fallbackModel = agent.config?.model?.fallback;
+  if (primaryModel && fallbackModel) {
+    config.model = {
+      primary: primaryModel,
+      fallbacks: [fallbackModel],
+    };
+  } else if (primaryModel) {
+    config.model = primaryModel;
+  } else if (fallbackModel) {
+    config.model = {
+      fallbacks: [fallbackModel],
+    };
   }
 
   // Sandbox: required for spawn eligibility — if the requester session is
