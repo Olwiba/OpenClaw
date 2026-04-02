@@ -315,6 +315,9 @@ function runSync() {
       const idx = config.agents.list.findIndex(a => a.id === agent.id);
       if (idx >= 0) {
         deepMerge(config.agents.list[idx], agentConfig);
+        if (config.agents.list[idx].modelFallback !== undefined) {
+          delete config.agents.list[idx].modelFallback;
+        }
       } else {
         config.agents.list.push({ id: agent.id, ...agentConfig });
       }

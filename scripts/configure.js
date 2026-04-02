@@ -119,6 +119,10 @@ if (Array.isArray(config.agents?.list)) {
     }
     if (entry.tools !== undefined) delete entry.tools;
     if (entry.sandbox !== undefined) delete entry.sandbox;
+    if (entry.modelFallback !== undefined) {
+      console.log(`[configure] removing legacy agents.list[${entry.id}].modelFallback`);
+      delete entry.modelFallback;
+    }
   }
 }
 
@@ -715,6 +719,28 @@ if (!hasProvider) {
   console.error("[configure]   MOONSHOT_API_KEY, KIMI_API_KEY, MINIMAX_API_KEY, SYNTHETIC_API_KEY, XIAOMI_API_KEY,");
   console.error("[configure]   NVIDIA_API_KEY, AWS_ACCESS_KEY_ID+AWS_SECRET_ACCESS_KEY (Bedrock), or OLLAMA_BASE_URL (local)");
   process.exit(1);
+}
+
+// Normalize media audio scope to current object schema.
+// Legacy configs may set strings like "all" or "dm".
+if (config.tools?.media?.audio?.scope !== undefined) {
+  const scope = config.tools.media.audio.scope;
+  if (typeof scope === "string") {
+    const normalized = scope.trim().toLowerCase();
+    if (normalized === "all" || normalized === "allow") {
+      config.tools.media.audio.scope = { default: "allow" };
+      console.log("[configure] migrated tools.media.audio.scope string → object (allow all)");
+    } else if (normalized === "dm" || normalized === "direct") {
+      config.tools.media.audio.scope = {
+        default: "deny",
+        rules: [{ action: "allow", match: { chatType: "direct" } }],
+      };
+      console.log("[configure] migrated tools.media.audio.scope string → object (direct only)");
+    } else {
+      config.tools.media.audio.scope = { default: "allow" };
+      console.log("[configure] migrated tools.media.audio.scope unknown string → object (default allow)");
+    }
+  }
 }
 
 // ── Write config ────────────────────────────────────────────────────────────
