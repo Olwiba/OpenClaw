@@ -28,9 +28,7 @@
   "channels": {
     "discord": {
       "threadBindings": {
-        "enabled": true,
-        "idleHours": 24,
-        "maxAgeHours": 0
+        "enabled": false
       },
       "guilds": {
         "1465996363258003643": {
