@@ -18,9 +18,11 @@ services:
       # Gateway
       - OPENCLAW_GATEWAY_PORT=${OPENCLAW_GATEWAY_PORT:-18789}
       # Browser sidecar (internal networking)
-      - BROWSER_CDP_URL=http://browser:9222
+      - BROWSER_CDP_URL=http://browser:9223
       - BROWSER_DEFAULT_PROFILE=${BROWSER_DEFAULT_PROFILE:-openclaw}
       - BROWSER_EVALUATE_ENABLED=${BROWSER_EVALUATE_ENABLED:-true}
+      # Allowed Origins
+      - OPENCLAW_ALLOWED_ORIGINS=${OPENCLAW_ALLOWED_ORIGINS:-}
     volumes:
       - openclaw-data:/data
     depends_on:
